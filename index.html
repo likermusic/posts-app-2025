@@ -5,11 +5,24 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Posts app</title>
+  <link rel="stylesheet" href="style.css">
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 </head>
 
 <body>
-  <h1>Test</h1>
+  <div class="bg-gray-950 min-h-screen flex justify-center flex-col items-center">
+    <form id="auth-form" class="border border-gray-50/50 rounded-xl flex flex-col w-full max-w-md p-10 pt-5 gap-4">
+      <h1 class="text-white text-3xl mb-5">Авторизация</h1>
+      <input id="auth-form-email" type="text" name="email" placeholder="Введите почту"
+        class="border border-gray-50/50  rounded-md text-white px-3 py-2">
+      <input id="auth-form-password" type="password" name="password" placeholder="Введите пароль"
+        class="border border-gray-50/50  rounded-md text-white px-3 py-2 disabled:opacity-45" disabled>
+      <!-- TODO: добавить глазик -->
+      <input id="auth-form-submit" type="submit" value="Войти"
+        class="rounded-md bg-blue-700 hover:bg-blue-800 text-white px-3 py-2 cursor-pointer">
+    </form>
+  </div>
+
   <script src="script.js"></script>
 </body>
 
