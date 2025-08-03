@@ -2,6 +2,9 @@ const authForm = document.querySelector("#auth-form");
 const authFormEmail = document.querySelector("#auth-form-email");
 const authFormPassword = document.querySelector("#auth-form-password");
 const authFormSubmit = document.querySelector("#auth-form-submit");
+const emailError = document.querySelector("#email-error");
+const passwordError = document.querySelector("#password-error");
+
 const validationRules = {
   emailRegex: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
   passwordRegex: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{4,}$/,
@@ -36,9 +39,11 @@ authForm.addEventListener("submit", (e) => {
 authFormEmail.addEventListener("input", (e) => {
   if (e.target.value.match(validationRules.emailRegex)) {
     formValidation.email = true;
+    emailError.classList.add("invisible");
     authFormPassword.disabled = false;
   } else {
     formValidation.email = false;
+    emailError.classList.remove("invisible");
     authFormPassword.disabled = true;
   }
 
@@ -48,8 +53,10 @@ authFormEmail.addEventListener("input", (e) => {
 authFormPassword.addEventListener("input", (e) => {
   if (e.target.value.match(validationRules.passwordRegex)) {
     formValidation.password = true;
+    passwordError.classList.add("invisible");
   } else {
     formValidation.password = false;
+    passwordError.classList.remove("invisible");
   }
 
   checkSubmitDisabled();
