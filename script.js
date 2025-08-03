@@ -7,11 +7,23 @@ const validationRules = {
   passwordRegex: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{4,}$/,
 };
 
+const formValidation = {
+  email: false,
+  password: false,
+};
+
+const checkSubmitDisabled = () => {
+  if (formValidation.email && formValidation.password) {
+    authFormSubmit.disabled = false;
+  } else {
+    authFormSubmit.disabled = true;
+  }
+};
+
 authForm.addEventListener("submit", (e) => {
   e.preventDefault();
   const formObj = new FormData(e.target);
   const formData = Object.fromEntries(formObj);
-  // formData.email.match(/dsd/);
 
   if (
     formData.email.match(validationRules.emailRegex) &&
@@ -22,9 +34,23 @@ authForm.addEventListener("submit", (e) => {
 });
 
 authFormEmail.addEventListener("input", (e) => {
-  if (authFormEmail.value.match(validationRules.emailRegex)) {
+  if (e.target.value.match(validationRules.emailRegex)) {
+    formValidation.email = true;
     authFormPassword.disabled = false;
   } else {
+    formValidation.email = false;
     authFormPassword.disabled = true;
   }
+
+  checkSubmitDisabled();
+});
+
+authFormPassword.addEventListener("input", (e) => {
+  if (e.target.value.match(validationRules.passwordRegex)) {
+    formValidation.password = true;
+  } else {
+    formValidation.password = false;
+  }
+
+  checkSubmitDisabled();
 });
