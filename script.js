@@ -9,6 +9,12 @@ const togglePasswordVisibility = document.querySelector(
 );
 // const hidePassword = document.querySelector("#hide-password");
 
+const users = [
+  { email: "user1@mail.ru", password: "qwe123QWE" },
+  { email: "user2@mail.ru", password: "asd123ASD" },
+  { email: "user3@mail.ru", password: "zxc123ZXC" },
+];
+
 const validationRules = {
   emailRegex: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
   passwordRegex: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{4,}$/,
@@ -43,7 +49,26 @@ authForm.addEventListener("submit", (e) => {
     formData.email.match(validationRules.emailRegex) &&
     formData.password.match(validationRules.passwordRegex)
   ) {
-    console.log("yes");
+    // try {
+    //   users.forEach((user) => {
+    //     if (
+    //       formData.email === user.email &&
+    //       formData.password === user.password
+    //     ) {
+    //       console.log("User found");
+    //       throw new Error("");
+    //     }
+    //   });
+    // } catch (error) {}
+
+    const isUser = users.find(
+      (user) =>
+        formData.email === user.email && formData.password === user.password
+    );
+
+    console.log(isUser);
+
+    //  { email: "user1@mail.ru", password: "qwe123QWE" },
   }
 });
 
