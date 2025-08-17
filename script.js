@@ -1,16 +1,16 @@
-const authForm = document.querySelector("#auth-form");
-const authFormEmail = document.querySelector("#auth-form-email");
-const authFormPassword = document.querySelector("#auth-form-password");
-const authFormSubmit = document.querySelector("#auth-form-submit");
-const emailError = document.querySelector("#email-error");
-const passwordError = document.querySelector("#password-error");
-const togglePasswordVisibility = document.querySelector(
-  "#toggle-password-visibility"
-);
-const alertError = document.querySelector("#alert-error");
-const alertClose = document.querySelector("#alert-close");
+let authForm,
+  authFormEmail,
+  authFormPassword,
+  authFormSubmit,
+  emailError,
+  passwordError,
+  togglePasswordVisibility,
+  alertError,
+  alertClose,
+  registrationLinkInAlert,
+  registrationLinkInForm;
 
-// const hidePassword = document.querySelector("#hide-password");
+const wrapper = document.querySelector("#wrapper");
 
 const users = [
   { email: "user1@mail.ru", password: "qwe123QWE" },
@@ -37,6 +37,69 @@ const passwordIcons = {
     "url(https://api.iconify.design/ion:eye-off-outline.svg?color=%23999999)",
 };
 
+const authFormMarkup = `
+   <form id="auth-form"
+      class="border border-gray-50/50 rounded-xl flex flex-col w-full max-w-md p-10 pt-5 gap-2">
+      <h1 class="text-white text-3xl mb-5">Авторизация</h1>
+      <div>
+        <input id="auth-form-email" type="text" name="email" placeholder="Введите почту"
+          class="border border-gray-50/50  rounded-md text-white px-3 py-2 w-full" autofocus>
+        <p id="email-error" class="text-red-600 text-xs mt-1 invisible">Неверно введена почта</p>
+      </div>
+      <div class="relative">
+        <input id="auth-form-password" type="password" name="password" placeholder="Введите пароль"
+          class="border border-gray-50/50  rounded-md text-white px-3 py-2 disabled:opacity-45 w-full" disabled>
+
+        <button id="toggle-password-visibility" class="hidden absolute right-3 top-1/3 -translate-y-1/3 w-5 h-5 appearance-none cursor-pointer 
+              bg-no-repeat"
+          style="background-image: url(https://api.iconify.design/ic:outline-remove-red-eye.svg?color=%23999999)"
+          data-visibility="false"></button>
+
+        <!-- <input id="hide-password" type="checkbox" class="hidden absolute right-3 top-1/3 -translate-y-1/3 w-5 h-5 appearance-none cursor-pointer 
+             bg-[url('https://api.iconify.design/ion:eye-off-outline.svg?color=%23999999')] bg-no-repeat"> -->
+
+        <p id="password-error" class="text-red-600 text-xs mt-1 invisible">Неверный пароль</p>
+      </div>
+      <!-- TODO: добавить глазик -->
+      <input id="auth-form-submit" type="submit" value="Войти"
+        class="rounded-md bg-blue-700 hover:bg-blue-800 text-white px-3 py-2 cursor-pointer disabled:opacity-45 disabled:bg-blue-700 disabled:cursor-auto"
+        disabled>
+      <a id="registration-link-in-form"
+        class="text-blue-600 underline self-center hover:no-underline hover:text-blue-100" href="">Регистрация</a>
+    </form>
+`;
+const regFormMarkup = `
+    <form id="registration-form"
+      class="border border-gray-50/50 rounded-xl flex flex-col w-full max-w-md p-10 pt-5 gap-2">
+      <h1 class="text-white text-3xl mb-5">Регистрация</h1>
+      <div>
+        <input id="auth-form-email" type="text" name="email" placeholder="Введите почту"
+          class="border border-gray-50/50  rounded-md text-white px-3 py-2 w-full" autofocus>
+        <p id="email-error" class="text-red-600 text-xs mt-1 invisible">Неверно введена почта</p>
+      </div>
+      <div class="relative">
+        <input id="auth-form-password" type="password" name="password" placeholder="Введите пароль"
+          class="border border-gray-50/50  rounded-md text-white px-3 py-2 disabled:opacity-45 w-full" disabled>
+
+        <button id="toggle-password-visibility" class="hidden absolute right-3 top-1/3 -translate-y-1/3 w-5 h-5 appearance-none cursor-pointer 
+              bg-no-repeat"
+          style="background-image: url(https://api.iconify.design/ic:outline-remove-red-eye.svg?color=%23999999)"
+          data-visibility="false"></button>
+
+        <!-- <input id="hide-password" type="checkbox" class="hidden absolute right-3 top-1/3 -translate-y-1/3 w-5 h-5 appearance-none cursor-pointer 
+             bg-[url('https://api.iconify.design/ion:eye-off-outline.svg?color=%23999999')] bg-no-repeat"> -->
+
+        <p id="password-error" class="text-red-600 text-xs mt-1 invisible">Неверный пароль</p>
+      </div>
+      <!-- TODO: добавить глазик -->
+      <input id="auth-form-submit" type="submit" value="Зарегистрироваться"
+        class="rounded-md bg-blue-700 hover:bg-blue-800 text-white px-3 py-2 cursor-pointer disabled:opacity-45 disabled:bg-blue-700 disabled:cursor-auto"
+        disabled>
+      <a id="registration-link-in-form"
+        class="text-blue-600 underline self-center hover:no-underline hover:text-blue-100" href="">Войти</a>
+    </form>
+`;
+
 const checkSubmitDisabled = () => {
   if (formValidation.email && formValidation.password) {
     authFormSubmit.disabled = false;
@@ -45,99 +108,139 @@ const checkSubmitDisabled = () => {
   }
 };
 
-authForm.addEventListener("submit", (e) => {
-  e.preventDefault();
-  const formObj = new FormData(e.target);
-  const formData = Object.fromEntries(formObj);
+const render = (markup) => {
+  wrapper.insertAdjacentHTML("afterbegin", markup);
+};
 
-  if (
-    formData.email.match(validationRules.emailRegex) &&
-    formData.password.match(validationRules.passwordRegex)
-  ) {
-    // try {
-    //   users.forEach((user) => {
-    //     if (
-    //       formData.email === user.email &&
-    //       formData.password === user.password
-    //     ) {
-    //       console.log("User found");
-    //       throw new Error("");
-    //     }
-    //   });
-    // } catch (error) {}
+// render(authFormMarkup);
 
-    const isUser = users.find(
-      (user) =>
-        formData.email === user.email && formData.password === user.password
-    );
+const init = () => {
+  authForm = document.querySelector("#auth-form");
+  authFormEmail = document.querySelector("#auth-form-email");
+  authFormPassword = document.querySelector("#auth-form-password");
+  authFormSubmit = document.querySelector("#auth-form-submit");
+  emailError = document.querySelector("#email-error");
+  passwordError = document.querySelector("#password-error");
+  togglePasswordVisibility = document.querySelector(
+    "#toggle-password-visibility"
+  );
+  alertError = document.querySelector("#alert-error");
+  alertClose = document.querySelector("#alert-close");
+  registrationLinkInAlert = document.querySelector(
+    "#registration-link-in-alert"
+  );
+  registrationLinkInForm = document.querySelector("#registration-link-in-form");
 
-    if (!isUser) {
-      // alertError.classList.remove("hidden");
-      alertError.classList.remove("opacity-0");
-      isAlertErrorVisible = true;
-      if (isAlertErrorVisible) {
-        setTimeout(() => {
-          alertError.classList.add("opacity-0");
-        }, 7000);
+  authForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const formObj = new FormData(e.target);
+    const formData = Object.fromEntries(formObj);
+
+    if (
+      formData.email.match(validationRules.emailRegex) &&
+      formData.password.match(validationRules.passwordRegex)
+    ) {
+      // try {
+      //   users.forEach((user) => {
+      //     if (
+      //       formData.email === user.email &&
+      //       formData.password === user.password
+      //     ) {
+      //       console.log("User found");
+      //       throw new Error("");
+      //     }
+      //   });
+      // } catch (error) {}
+
+      const isUser = users.find(
+        (user) =>
+          formData.email === user.email && formData.password === user.password
+      );
+
+      if (!isUser) {
+        // alertError.classList.remove("hidden");
+        alertError.classList.remove("opacity-0");
+        isAlertErrorVisible = true;
+        if (isAlertErrorVisible) {
+          setTimeout(() => {
+            alertError.classList.add("opacity-0");
+          }, 7000);
+        }
+      } else {
+        alert("Вход разрешен");
       }
+
+      //  { email: "user1@mail.ru", password: "qwe123QWE" },
+    }
+  });
+
+  authFormEmail.addEventListener("input", (e) => {
+    if (e.target.value.match(validationRules.emailRegex)) {
+      formValidation.email = true;
+      emailError.classList.add("invisible");
+      authFormPassword.disabled = false;
     } else {
-      alert("Вход разрешен");
+      formValidation.email = false;
+      emailError.classList.remove("invisible");
+      authFormPassword.disabled = true;
     }
 
-    //  { email: "user1@mail.ru", password: "qwe123QWE" },
-  }
-});
+    checkSubmitDisabled();
+  });
 
-authFormEmail.addEventListener("input", (e) => {
-  if (e.target.value.match(validationRules.emailRegex)) {
-    formValidation.email = true;
-    emailError.classList.add("invisible");
-    authFormPassword.disabled = false;
-  } else {
-    formValidation.email = false;
-    emailError.classList.remove("invisible");
-    authFormPassword.disabled = true;
-  }
+  authFormPassword.addEventListener("input", (e) => {
+    if (e.target.value) {
+      togglePasswordVisibility.classList.remove("hidden");
+    } else {
+      togglePasswordVisibility.classList.add("hidden");
+    }
 
-  checkSubmitDisabled();
-});
+    if (e.target.value.match(validationRules.passwordRegex)) {
+      formValidation.password = true;
+      passwordError.classList.add("invisible");
+    } else {
+      formValidation.password = false;
+      passwordError.classList.remove("invisible");
+    }
 
-authFormPassword.addEventListener("input", (e) => {
-  if (e.target.value) {
-    togglePasswordVisibility.classList.remove("hidden");
-  } else {
-    togglePasswordVisibility.classList.add("hidden");
-  }
+    checkSubmitDisabled();
+  });
 
-  if (e.target.value.match(validationRules.passwordRegex)) {
-    formValidation.password = true;
-    passwordError.classList.add("invisible");
-  } else {
-    formValidation.password = false;
-    passwordError.classList.remove("invisible");
-  }
+  togglePasswordVisibility.addEventListener("click", (e) => {
+    if (e.target.dataset.visibility === "true") {
+      //hide
+      authFormPassword.type = "password";
+      e.target.style.backgroundImage = passwordIcons.eyeOpen;
+      e.target.dataset.visibility = "false";
+    } else {
+      //show
+      authFormPassword.type = "text";
+      e.target.style.backgroundImage = passwordIcons.eyeClose;
+      e.target.dataset.visibility = "true";
+    }
 
-  checkSubmitDisabled();
-});
+    authFormPassword.focus();
+  });
 
-togglePasswordVisibility.addEventListener("click", (e) => {
-  if (e.target.dataset.visibility === "true") {
-    //hide
-    authFormPassword.type = "password";
-    e.target.style.backgroundImage = passwordIcons.eyeOpen;
-    e.target.dataset.visibility = "false";
-  } else {
-    //show
-    authFormPassword.type = "text";
-    e.target.style.backgroundImage = passwordIcons.eyeClose;
-    e.target.dataset.visibility = "true";
-  }
+  alertClose.addEventListener("click", () => {
+    if (isAlertErrorVisible) {
+      alertError.classList.add("opacity-0");
+    }
+  });
 
-  authFormPassword.focus();
-});
+  registrationLinkInAlert.addEventListener("click", (e) => {
+    e.preventDefault();
+    authForm.remove();
+    render(regFormMarkup);
+  });
+  registrationLinkInForm.addEventListener("click", (e) => {
+    e.preventDefault();
+    authForm.remove();
+    render(regFormMarkup);
+  });
+};
 
-alertClose.addEventListener("click", () => {
-  if (isAlertErrorVisible) {
-    alertError.classList.add("opacity-0");
-  }
+document.addEventListener("DOMContentLoaded", () => {
+  render(authFormMarkup);
+  init();
 });
