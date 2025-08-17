@@ -7,6 +7,9 @@ const passwordError = document.querySelector("#password-error");
 const togglePasswordVisibility = document.querySelector(
   "#toggle-password-visibility"
 );
+const alertError = document.querySelector("#alert-error");
+const alertClose = document.querySelector("#alert-close");
+
 // const hidePassword = document.querySelector("#hide-password");
 
 const users = [
@@ -24,6 +27,8 @@ const formValidation = {
   email: false,
   password: false,
 };
+
+let isAlertErrorVisible = false;
 
 const passwordIcons = {
   eyeOpen:
@@ -66,7 +71,18 @@ authForm.addEventListener("submit", (e) => {
         formData.email === user.email && formData.password === user.password
     );
 
-    console.log(isUser);
+    if (!isUser) {
+      // alertError.classList.remove("hidden");
+      alertError.classList.remove("opacity-0");
+      isAlertErrorVisible = true;
+      if (isAlertErrorVisible) {
+        setTimeout(() => {
+          alertError.classList.add("opacity-0");
+        }, 7000);
+      }
+    } else {
+      alert("Вход разрешен");
+    }
 
     //  { email: "user1@mail.ru", password: "qwe123QWE" },
   }
@@ -118,4 +134,10 @@ togglePasswordVisibility.addEventListener("click", (e) => {
   }
 
   authFormPassword.focus();
+});
+
+alertClose.addEventListener("click", () => {
+  if (isAlertErrorVisible) {
+    alertError.classList.add("opacity-0");
+  }
 });
