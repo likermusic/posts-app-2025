@@ -23,6 +23,8 @@ const validationRules = {
   passwordRegex: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{4,}$/,
 };
 
+const formTypes = ["auth", "reg"];
+
 const formValidation = {
   email: false,
   password: false,
@@ -42,7 +44,7 @@ const authFormMarkup = `
       class="border border-gray-50/50 rounded-xl flex flex-col w-full max-w-md p-10 pt-5 gap-2">
       <h1 class="text-white text-3xl mb-5">Авторизация</h1>
       <div>
-        <input id="auth-form-email" type="text" name="email" placeholder="Введите почту"
+        <input data-id="AUTH_FORM" id="auth-form-email" type="text" name="email" placeholder="Введите почту"
           class="border border-gray-50/50  rounded-md text-white px-3 py-2 w-full" autofocus>
         <p id="email-error" class="text-red-600 text-xs mt-1 invisible">Неверно введена почта</p>
       </div>
@@ -69,11 +71,11 @@ const authFormMarkup = `
     </form>
 `;
 const regFormMarkup = `
-    <form id="registration-form"
+    <form id="auth-form"
       class="border border-gray-50/50 rounded-xl flex flex-col w-full max-w-md p-10 pt-5 gap-2">
       <h1 class="text-white text-3xl mb-5">Регистрация</h1>
       <div>
-        <input id="auth-form-email" type="text" name="email" placeholder="Введите почту"
+        <input data-id="REG_FORM" id="auth-form-email" type="text" name="email" placeholder="Введите почту"
           class="border border-gray-50/50  rounded-md text-white px-3 py-2 w-full" autofocus>
         <p id="email-error" class="text-red-600 text-xs mt-1 invisible">Неверно введена почта</p>
       </div>
@@ -109,12 +111,17 @@ const checkSubmitDisabled = () => {
 };
 
 const render = (markup) => {
+  wrapper.innerHTML = ""; // Очищаем контейнер
   wrapper.insertAdjacentHTML("afterbegin", markup);
 };
 
 // render(authFormMarkup);
 
-const init = () => {
+const init = (formType) => {
+  // const isAuthForm = document.querySelector("#auth-form");
+  // const isRegForm = document.querySelector("#registration-form");
+  // нужно сделать проверку на то какая сейчас форма
+  // if (isAuthForm) {} else if (isRegForm) {} //и в зависимости от этого регать переменные и события с правильными сеоекторами. И в верстке для каждой из форм нужно свои уникальные селекторы поставить чтобы id не повторялись
   authForm = document.querySelector("#auth-form");
   authFormEmail = document.querySelector("#auth-form-email");
   authFormPassword = document.querySelector("#auth-form-password");
@@ -140,34 +147,29 @@ const init = () => {
       formData.email.match(validationRules.emailRegex) &&
       formData.password.match(validationRules.passwordRegex)
     ) {
-      // try {
-      //   users.forEach((user) => {
-      //     if (
-      //       formData.email === user.email &&
-      //       formData.password === user.password
-      //     ) {
-      //       console.log("User found");
-      //       throw new Error("");
-      //     }
-      //   });
-      // } catch (error) {}
+      if (formType === formTypes[0]) {
+        const isUser = users.find(
+          (user) =>
+            formData.email === user.email && formData.password === user.password
+        );
 
-      const isUser = users.find(
-        (user) =>
-          formData.email === user.email && formData.password === user.password
-      );
-
-      if (!isUser) {
-        // alertError.classList.remove("hidden");
-        alertError.classList.remove("opacity-0");
-        isAlertErrorVisible = true;
-        if (isAlertErrorVisible) {
-          setTimeout(() => {
-            alertError.classList.add("opacity-0");
-          }, 7000);
+        if (!isUser) {
+          // alertError.classList.remove("hidden");
+          alertError.classList.remove("opacity-0");
+          isAlertErrorVisible = true;
+          if (isAlertErrorVisible) {
+            setTimeout(() => {
+              alertError.classList.add("opacity-0");
+            }, 7000);
+          }
+        } else {
+          location.href = "posts.html";
         }
-      } else {
-        alert("Вход разрешен");
+      } else if (formType === formTypes[1]) {
+        users.push(formData);
+        authForm.remove();
+        render(authFormMarkup);
+        init(formTypes[0]);
       }
 
       //  { email: "user1@mail.ru", password: "qwe123QWE" },
@@ -206,7 +208,7 @@ const init = () => {
     checkSubmitDisabled();
   });
 
-  togglePasswordVisibility.addEventListener("click", (e) => {
+  togglePasswordVisibility.addEventListener("mousedown", (e) => {
     if (e.target.dataset.visibility === "true") {
       //hide
       authFormPassword.type = "password";
@@ -232,15 +234,19 @@ const init = () => {
     e.preventDefault();
     authForm.remove();
     render(regFormMarkup);
+    init(formTypes[1]);
+    // init();   // нужно вызывать чтобы для новой формы перерегистрировать все переменные и сгобытия
   });
   registrationLinkInForm.addEventListener("click", (e) => {
     e.preventDefault();
     authForm.remove();
     render(regFormMarkup);
+    init(formTypes[1]);
+    // init();   // нужно вызывать чтобы для новой формы перерегистрировать все переменные и сгобытия
   });
 };
 
 document.addEventListener("DOMContentLoaded", () => {
   render(authFormMarkup);
-  init();
+  init(formTypes[0]);
 });

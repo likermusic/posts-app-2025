@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Posts</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+
+<body class="bg-gray-950 flex gap-2">
+  <div id="posts-wrapper" class="w-4/5  flex gap-3 min-h-screen flex-wrap content-baseline justify-around">
+
+  </div>
+
+  <div class="w-1/5 bg-gray-100/98 rounded-l-3xl p-5 flex gap-5 flex-col">
+    <h1 class="text-3xl font-bold text-center">Избранное</h1>
+    <ul class="text-white flex flex-col gap-3">
+      <li class="rounded-xl p-3 px-5 bg-gray-950 flex justify-between">
+        <span>Основы JavaScript</span>
+        <button class="cursor-pointer">✕</button>
+      </li>
+      <li class="rounded-xl p-3 px-5 bg-gray-950 flex justify-between">
+        <span>Основы JavaScript</span>
+        <button class="cursor-pointer">✕</button>
+      </li>
+    </ul>
+  </div>
+  <script src="posts.js"></script>
+</body>
+
+</html>
