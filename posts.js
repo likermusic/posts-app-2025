@@ -64,14 +64,15 @@ const posts = [
   },
 ];
 
+const favourites = [];
+
 const renderPosts = () => {
   let markup = "";
   posts.forEach((post) => {
-    markup += `<div data-id="${post.id}" class="border rounded-3xl p-3 border-white w-100 h-50 flex  gap-4 flex-col post">
+    markup += `<div data-id="${post.id}" class="border rounded-3xl p-3 border-white w-100 min-h-50 flex  gap-4 flex-col post">
   
       <h3 class="text-white text-xl font-bold">
       ${post.title}
-        <span class="text-white text-6xl">*</span>
       </h3>
       <p class="text-white">${post.description}
       </p>
@@ -91,30 +92,52 @@ document.addEventListener("DOMContentLoaded", () => {
 
   postsWrapper.addEventListener("click", (e) => {
     if (e.target.matches(".post button")) {
-      const title = e.target.parentElement.querySelector("h3").textContent;
-      const favouritePostMarkup = `<li class="rounded-xl p-3 px-5 bg-gray-950 flex justify-between">
-        <span>${title}</span>
-        <button class="cursor-pointer">✕</button>
-      </li>`;
-      favouriteList.insertAdjacentHTML("beforeend", favouritePostMarkup);
-    }
+      const id = Number(e.target.parentElement.dataset.id);
 
-    if (e.target.matches(".post span")) {
-      const oldTitle = e.target.parentElement.textContent;
-      const newTitle = "Random post";
-      e.target.parentElement.textContent = newTitle;
-      console.log(favouriteList.children);
+      if (!favourites.includes(id)) {
+        // posts.forEach((post) => {
+        //   if (Number(id) === post.id) {
+        //     const favouritePostMarkup = `<li data-id="${post.id}" class="rounded-xl p-3 px-5 bg-gray-950 flex justify-between">
+        //        <span>${post.title}</span>
+        //         <button class="cursor-pointer">✕</button>
+        //     </li>`;
+        //     favouriteList.insertAdjacentHTML("beforeend", favouritePostMarkup);
+        //   }
+        // });
 
-      // favouriteList.children.forEach((element) => {
-      //   console.log(element);
-
-      //   // if (oldTitle === element.)
-      // });
-
-      for (const element of favouriteList.children) {
-        if (element.querySelector("span").textContent === oldTitle) {
-          element.textContent = newTitle;
+        // const post = posts.find((post) => {
+        //   if (Number(id) === post.id) {
+        //     return post;
+        //   }
+        // });
+        const post = posts.find((post) => id === post.id);
+        if (post?.id) {
+          favourites.push(post.id);
+          const favouritePostMarkup = `<li data-id="${post.id}" class="rounded-xl p-3 px-5 bg-gray-950 flex justify-between">
+               <span>${post.title}</span>
+                <button class="cursor-pointer delete-favourite">✕</button>
+            </li>`;
+          favouriteList.insertAdjacentHTML("beforeend", favouritePostMarkup);
+        } else {
+          alert("Попробуйте позже");
         }
+      }
+    }
+  });
+
+  favouriteList.addEventListener("click", (e) => {
+    if (e.target.matches(".delete-favourite")) {
+      const id = e.target.parentElement.dataset.id;
+      // const post = favourites.find((el) => Number(id) === el);
+      // const ind = favourites.indexOf(Number(id));
+      // console.log(ind);
+
+      const ind = favourites.indexOf(Number(id));
+      if (ind !== -1) {
+        favourites.splice(ind, 1);
+        e.target.parentElement.remove();
+      } else {
+        alert("Try again later");
       }
     }
   });
