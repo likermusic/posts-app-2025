@@ -1,70 +1,94 @@
 const postsWrapper = document.querySelector("#posts-wrapper");
 const favouriteList = document.querySelector("#favourite-list");
 
-const posts = [
-  {
-    id: 1,
-    title: "Основы JavaScript",
-    description:
-      "Изучение базовых концепций языка программирования JavaScript для начинающих разработчиков.",
-  },
-  {
-    id: 2,
-    title: "Введение в React",
-    description:
-      "Первый шаг в освоении популярного фреймворка для создания пользовательских интерфейсов.",
-  },
-  {
-    id: 3,
-    title: "Советы по CSS",
-    description:
-      "Полезные приемы и лучшие практики для эффективной работы с каскадными таблицами стилей.",
-  },
-  {
-    id: 4,
-    title: "Базы данных для веб-разработки",
-    description:
-      "Обзор различных систем управления базами данных и их применение в веб-проектах.",
-  },
-  {
-    id: 5,
-    title: "Алгоритмы и структуры данных",
-    description:
-      "Важные алгоритмы и структуры данных, которые должен знать каждый программист.",
-  },
-  {
-    id: 6,
-    title: "Версионный контроль с Git",
-    description:
-      "Основы работы с системой контроля версий Git и популярные команды для ежедневного использования.",
-  },
-  {
-    id: 7,
-    title: "Оптимизация производительности веб-сайтов",
-    description:
-      "Техники и инструменты для ускорения загрузки и улучшения производительности веб-приложений.",
-  },
-  {
-    id: 8,
-    title: "Основы безопасности веб-приложений",
-    description:
-      "Ключевые принципы безопасности и распространенные уязвимости, которые следует избегать.",
-  },
-  {
-    id: 9,
-    title: "Работа с API",
-    description:
-      "Как создавать и использовать RESTful API для взаимодействия между различными системами.",
-  },
-  {
-    id: 10,
-    title: "Деплой приложений",
-    description:
-      "Процесс развертывания веб-приложений на различных хостинг-платформах и серверах.",
-  },
-];
+// const posts = [
+//   {
+//     id: 1,
+//     title: "Основы JavaScript",
+//     description:
+//       "Изучение базовых концепций языка программирования JavaScript для начинающих разработчиков.",
+//   },
+//   {
+//     id: 2,
+//     title: "Введение в React",
+//     description:
+//       "Первый шаг в освоении популярного фреймворка для создания пользовательских интерфейсов.",
+//   },
+//   {
+//     id: 3,
+//     title: "Советы по CSS",
+//     description:
+//       "Полезные приемы и лучшие практики для эффективной работы с каскадными таблицами стилей.",
+//   },
+//   {
+//     id: 4,
+//     title: "Базы данных для веб-разработки",
+//     description:
+//       "Обзор различных систем управления базами данных и их применение в веб-проектах.",
+//   },
+//   {
+//     id: 5,
+//     title: "Алгоритмы и структуры данных",
+//     description:
+//       "Важные алгоритмы и структуры данных, которые должен знать каждый программист.",
+//   },
+//   {
+//     id: 6,
+//     title: "Версионный контроль с Git",
+//     description:
+//       "Основы работы с системой контроля версий Git и популярные команды для ежедневного использования.",
+//   },
+//   {
+//     id: 7,
+//     title: "Оптимизация производительности веб-сайтов",
+//     description:
+//       "Техники и инструменты для ускорения загрузки и улучшения производительности веб-приложений.",
+//   },
+//   {
+//     id: 8,
+//     title: "Основы безопасности веб-приложений",
+//     description:
+//       "Ключевые принципы безопасности и распространенные уязвимости, которые следует избегать.",
+//   },
+//   {
+//     id: 9,
+//     title: "Работа с API",
+//     description:
+//       "Как создавать и использовать RESTful API для взаимодействия между различными системами.",
+//   },
+//   {
+//     id: 10,
+//     title: "Деплой приложений",
+//     description:
+//       "Процесс развертывания веб-приложений на различных хостинг-платформах и серверах.",
+//   },
+// ];
 
-const favourites = [];
+// localStorage.setItem("posts", JSON.stringify(posts));
+
+const posts = JSON.parse(localStorage.getItem("posts"));
+const favourites = JSON.parse(localStorage.getItem("favourites"));
+
+// const favourites = [];
+
+const renderFavouritesPosts = () => {
+  let markup = "";
+  favourites.forEach((postId) => {
+    const post = posts.find((el) => el.id === postId);
+    markup += `<li data-id="${post.id}" class="rounded-xl p-3 px-5 bg-gray-950 flex justify-between">
+               <span>${post.title}</span>
+                <button class="cursor-pointer delete-favourite">✕</button>
+            </li>`;
+  });
+
+  favouriteList.insertAdjacentHTML("beforeend", markup);
+
+  //TODO: задизейблить кнопки у самих постов
+};
+
+if (favourites && favourites.length > 0) {
+  renderFavouritesPosts();
+}
 
 const renderPosts = () => {
   let markup = "";
@@ -94,6 +118,11 @@ document.addEventListener("DOMContentLoaded", () => {
     if (e.target.matches(".post button")) {
       const id = Number(e.target.parentElement.dataset.id);
 
+      let favourites = JSON.parse(localStorage.getItem("favourites"));
+      if (!favourites) {
+        favourites = [];
+      }
+
       if (!favourites.includes(id)) {
         // posts.forEach((post) => {
         //   if (Number(id) === post.id) {
@@ -112,12 +141,16 @@ document.addEventListener("DOMContentLoaded", () => {
         // });
         const post = posts.find((post) => id === post.id);
         if (post?.id) {
-          favourites.push(post.id);
+          favourites.push(id);
+          localStorage.setItem("favourites", JSON.stringify(favourites));
+
           const favouritePostMarkup = `<li data-id="${post.id}" class="rounded-xl p-3 px-5 bg-gray-950 flex justify-between">
                <span>${post.title}</span>
                 <button class="cursor-pointer delete-favourite">✕</button>
             </li>`;
           favouriteList.insertAdjacentHTML("beforeend", favouritePostMarkup);
+          e.target.disabled = true;
+          e.target.textContent = "Уже в избранном";
         } else {
           alert("Попробуйте позже");
         }
@@ -131,13 +164,30 @@ document.addEventListener("DOMContentLoaded", () => {
       // const post = favourites.find((el) => Number(id) === el);
       // const ind = favourites.indexOf(Number(id));
       // console.log(ind);
+      let favourites = JSON.parse(localStorage.getItem("favourites"));
 
-      const ind = favourites.indexOf(Number(id));
-      if (ind !== -1) {
-        favourites.splice(ind, 1);
-        e.target.parentElement.remove();
+      if (!favourites) {
+        alert("Can not get favourites");
+        favouriteList.textContent = "";
       } else {
-        alert("Try again later");
+        const ind = favourites.indexOf(Number(id));
+        if (ind !== -1) {
+          favourites.splice(ind, 1);
+          localStorage.setItem("favourites", JSON.stringify(favourites));
+
+          e.target.parentElement.remove();
+          const posts = postsWrapper.querySelectorAll(".post");
+          // const unfavouritePost = posts.find((el) => el.dataset.id === id);
+          for (const el of posts) {
+            if (el.dataset.id === id) {
+              const btn = el.querySelector("button");
+              btn.disabled = false;
+              btn.textContent = "Добавить в избранное";
+            }
+          }
+        } else {
+          alert("Try again later");
+        }
       }
     }
   });
