@@ -67,8 +67,35 @@ const logout = document.querySelector("#logout");
 
 // localStorage.setItem("posts", JSON.stringify(posts));
 
+const getUserId = () => {
+  let userId;
+  const cookieArr = document.cookie.split(";");
+  cookieArr.forEach((el) => {
+    const [name, value] = el.split("=");
+    if (name === "authUser") {
+      userId = Number(value);
+    }
+  });
+  return userId;
+};
+
+const userId = getUserId();
+
 const posts = JSON.parse(localStorage.getItem("posts"));
-const favourites = JSON.parse(localStorage.getItem("favourites"));
+let favourites = JSON.parse(localStorage.getItem("favourites"))?.find(
+  (obj) => Number(obj.id) === userId
+)?.posts; /// [3,5,6,7]
+
+// favourites = [
+//   {
+//     id: 1,
+//     posts: [2, 4, 5],
+//   },
+//   {
+//     id: 2,
+//     posts: [6, 4, 2],
+//   },
+// ];
 
 // const favourites = [];
 
@@ -127,43 +154,43 @@ document.addEventListener("DOMContentLoaded", () => {
     if (e.target.matches(".post button")) {
       const id = Number(e.target.parentElement.dataset.id);
 
-      let favourites = JSON.parse(localStorage.getItem("favourites"));
-      if (!favourites) {
-        favourites = [];
-      }
+      //TODO: раскоментить и пофиксить повторное добавление поста
+      // if (!favourites.includes(id)) {
 
-      if (!favourites.includes(id)) {
-        // posts.forEach((post) => {
-        //   if (Number(id) === post.id) {
-        //     const favouritePostMarkup = `<li data-id="${post.id}" class="rounded-xl p-3 px-5 bg-gray-950 flex justify-between">
-        //        <span>${post.title}</span>
-        //         <button class="cursor-pointer">✕</button>
-        //     </li>`;
-        //     favouriteList.insertAdjacentHTML("beforeend", favouritePostMarkup);
-        //   }
-        // });
+      const post = posts.find((post) => id === post.id);
+      if (post?.id) {
+        const jsonFavouritesLS = localStorage.getItem("favourites"); // [{},{}]
 
-        // const post = posts.find((post) => {
-        //   if (Number(id) === post.id) {
-        //     return post;
-        //   }
-        // });
-        const post = posts.find((post) => id === post.id);
-        if (post?.id) {
-          favourites.push(id);
-          localStorage.setItem("favourites", JSON.stringify(favourites));
+        if (jsonFavouritesLS && jsonFavouritesLS.length > 0) {
+          const favouritesLS = JSON.parse(jsonFavouritesLS);
 
-          const favouritePostMarkup = `<li data-id="${post.id}" class="rounded-xl p-3 px-5 bg-gray-950 flex justify-between">
+          favouritesLS.forEach((obj) => {
+            if (obj.id === userId) {
+              obj.posts.push(id);
+            }
+          });
+
+          localStorage.setItem("favourites", JSON.stringify(favouritesLS));
+        } else {
+          const userObj = {
+            id: userId,
+            posts: [post.id],
+          };
+          localStorage.setItem("favourites", JSON.stringify([userObj]));
+        }
+
+        const favouritePostMarkup = `<li data-id="${post.id}" class="rounded-xl p-3 px-5 bg-gray-950 flex justify-between">
                <span>${post.title}</span>
                 <button class="cursor-pointer delete-favourite">✕</button>
             </li>`;
-          favouriteList.insertAdjacentHTML("beforeend", favouritePostMarkup);
-          e.target.disabled = true;
-          e.target.textContent = "Уже в избранном";
-        } else {
-          alert("Попробуйте позже");
-        }
+        favouriteList.insertAdjacentHTML("beforeend", favouritePostMarkup);
+        e.target.disabled = true;
+        e.target.textContent = "Уже в избранном";
+      } else {
+        alert("Попробуйте позже");
       }
+
+      // }
     }
   });
 
