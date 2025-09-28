@@ -1,5 +1,6 @@
 const postsWrapper = document.querySelector("#posts-wrapper");
 const favouriteList = document.querySelector("#favourite-list");
+const logout = document.querySelector("#logout");
 
 // const posts = [
 //   {
@@ -72,6 +73,8 @@ const favourites = JSON.parse(localStorage.getItem("favourites"));
 // const favourites = [];
 
 const renderFavouritesPosts = () => {
+  const postsUi = postsWrapper.querySelectorAll(".post");
+
   let markup = "";
   favourites.forEach((postId) => {
     const post = posts.find((el) => el.id === postId);
@@ -79,16 +82,18 @@ const renderFavouritesPosts = () => {
                <span>${post.title}</span>
                 <button class="cursor-pointer delete-favourite">✕</button>
             </li>`;
+
+    for (const el of postsUi) {
+      if (Number(el.dataset.id) === postId) {
+        const btn = el.querySelector("button");
+        btn.disabled = true;
+        btn.textContent = "Уже в избранном";
+      }
+    }
   });
 
   favouriteList.insertAdjacentHTML("beforeend", markup);
-
-  //TODO: задизейблить кнопки у самих постов
 };
-
-if (favourites && favourites.length > 0) {
-  renderFavouritesPosts();
-}
 
 const renderPosts = () => {
   let markup = "";
@@ -110,6 +115,10 @@ const renderPosts = () => {
 
 document.addEventListener("DOMContentLoaded", () => {
   renderPosts();
+
+  if (favourites && favourites.length > 0) {
+    renderFavouritesPosts();
+  }
   // document.querySelectorAll(".post").addEventListener("click", (e) => {
   //   console.log(e.target);
   // });
@@ -190,5 +199,10 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }
     }
+  });
+
+  logout.addEventListener("click", () => {
+    document.cookie = "authUser" + "=; max-age=0";
+    location.href = "index.html";
   });
 });

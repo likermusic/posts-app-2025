@@ -13,9 +13,9 @@ let authForm,
 const wrapper = document.querySelector("#wrapper");
 
 const users = [
-  { email: "user1@mail.ru", password: "qwe123QWE" },
-  { email: "user2@mail.ru", password: "asd123ASD" },
-  { email: "user3@mail.ru", password: "zxc123ZXC" },
+  { id: 1, email: "user1@mail.ru", password: "qwe123QWE" },
+  { id: 2, email: "user2@mail.ru", password: "asd123ASD" },
+  { id: 3, email: "user3@mail.ru", password: "zxc123ZXC" },
 ];
 
 const validationRules = {
@@ -163,6 +163,7 @@ const init = (formType) => {
             }, 7000);
           }
         } else {
+          document.cookie = `authUser=${isUser.id}; path=/; max-age=3600`;
           location.href = "posts.html";
         }
       } else if (formType === formTypes[1]) {
@@ -250,3 +251,13 @@ document.addEventListener("DOMContentLoaded", () => {
   render(authFormMarkup);
   init(formTypes[0]);
 });
+
+// const cookieArr = document.cookie.split(";");
+
+// cookieArr.forEach((el) => {
+//   "_ym_uid=1719807991381788226";
+//   const cookieName = el.split("=")[0];
+//   document.cookie = cookieName + "=; max-age=0";
+// });
+
+// console.log(document.cookie);
