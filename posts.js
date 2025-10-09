@@ -154,78 +154,168 @@ document.addEventListener("DOMContentLoaded", () => {
     if (e.target.matches(".post button")) {
       const id = Number(e.target.parentElement.dataset.id);
 
-      //TODO: раскоментить и пофиксить повторное добавление поста
-      // if (!favourites.includes(id)) {
+      let favourites = JSON.parse(localStorage.getItem("favourites"))?.find(
+        (obj) => Number(obj.id) === userId
+      )?.posts; // [1,4,5,6],    [],   undefined
 
+      if (favourites && favourites.includes(id)) {
+        return;
+      }
+
+      // if (!favourites.includes(id)) {
       const post = posts.find((post) => id === post.id);
       if (post?.id) {
-        const jsonFavouritesLS = localStorage.getItem("favourites"); // [{},{}]
+        if (!favourites) {
+          favourites = [];
+        }
 
-        if (jsonFavouritesLS && jsonFavouritesLS.length > 0) {
-          const favouritesLS = JSON.parse(jsonFavouritesLS);
+        favourites.push(post.id);
 
-          favouritesLS.forEach((obj) => {
-            if (obj.id === userId) {
-              obj.posts.push(id);
+        let jsonFavouritesLS = localStorage.getItem("favourites"); // [{},{}]
+        let allUsersFavourites;
+        if (!jsonFavouritesLS) {
+          allUsersFavourites = [];
+        } else {
+          allUsersFavourites = JSON.parse(jsonFavouritesLS);
+        }
+
+        if (allUsersFavourites.length === 0) {
+          localStorage.setItem(
+            "favourites",
+            JSON.stringify([
+              {
+                id: userId,
+                posts: [post.id],
+              },
+            ])
+          );
+        } else {
+          let isUser = false;
+          allUsersFavourites.forEach((el) => {
+            if (el.id === userId) {
+              el.posts = favourites;
+              isUser = true;
+
+              localStorage.setItem(
+                "favourites",
+                JSON.stringify(allUsersFavourites)
+              );
             }
           });
-
-          localStorage.setItem("favourites", JSON.stringify(favouritesLS));
-        } else {
-          const userObj = {
-            id: userId,
-            posts: [post.id],
-          };
-          localStorage.setItem("favourites", JSON.stringify([userObj]));
+          if (isUser === false) {
+            allUsersFavourites.push({
+              id: userId,
+              posts: [post.id],
+            });
+            localStorage.setItem(
+              "favourites",
+              JSON.stringify(allUsersFavourites)
+            );
+          }
         }
 
         const favouritePostMarkup = `<li data-id="${post.id}" class="rounded-xl p-3 px-5 bg-gray-950 flex justify-between">
-               <span>${post.title}</span>
-                <button class="cursor-pointer delete-favourite">✕</button>
-            </li>`;
+                     <span>${post.title}</span>
+                      <button class="cursor-pointer delete-favourite">✕</button>
+                  </li>`;
         favouriteList.insertAdjacentHTML("beforeend", favouritePostMarkup);
         e.target.disabled = true;
         e.target.textContent = "Уже в избранном";
-      } else {
-        alert("Попробуйте позже");
       }
-
-      // }
     }
   });
 
   favouriteList.addEventListener("click", (e) => {
     if (e.target.matches(".delete-favourite")) {
-      const id = e.target.parentElement.dataset.id;
-      // const post = favourites.find((el) => Number(id) === el);
-      // const ind = favourites.indexOf(Number(id));
-      // console.log(ind);
-      let favourites = JSON.parse(localStorage.getItem("favourites"));
-
-      if (!favourites) {
+      const postId = Number(e.target.parentElement.dataset.id);
+      const jsonFavouritesLS = localStorage.getItem("favourites");
+      if (!jsonFavouritesLS) {
         alert("Can not get favourites");
         favouriteList.textContent = "";
       } else {
-        const ind = favourites.indexOf(Number(id));
-        if (ind !== -1) {
-          favourites.splice(ind, 1);
-          localStorage.setItem("favourites", JSON.stringify(favourites));
-
-          e.target.parentElement.remove();
-          const posts = postsWrapper.querySelectorAll(".post");
-          // const unfavouritePost = posts.find((el) => el.dataset.id === id);
-          for (const el of posts) {
-            if (el.dataset.id === id) {
-              const btn = el.querySelector("button");
-              btn.disabled = false;
-              btn.textContent = "Добавить в избранное";
-            }
-          }
+        const allUsersFavourites = JSON.parse(jsonFavouritesLS); // [], [{},{}]
+        if (allUsersFavourites.length === 0) {
+          alert("Can not get favourites");
+          favouriteList.textContent = "";
         } else {
-          alert("Try again later");
+          allUsersFavourites.forEach((el) => {
+            if (el.id === userId) {
+              if (!el.posts || el.posts.length === 0) {
+                alert("Can not get favourites");
+                favouriteList.textContent = "";
+              } else {
+                const postInd = el.posts.indexOf(postId);
+                if (postInd === -1) {
+                  alert("Can not delete post. Try later");
+                } else {
+                  el.posts.splice(postInd, 1);
+
+                  localStorage.setItem(
+                    "favourites",
+                    JSON.stringify(allUsersFavourites)
+                  );
+
+                  e.target.parentElement.remove();
+
+                  const posts = postsWrapper.querySelectorAll(".post");
+                  // const unfavouritePost = posts.find((el) => el.dataset.id === id);
+                  for (const el of posts) {
+                    if (Number(el.dataset.id) === postId) {
+                      const btn = el.querySelector("button");
+                      btn.disabled = false;
+                      btn.textContent = "Добавить в избранное";
+                    }
+                  }
+                }
+              }
+            } else {
+              alert("Can not get favourites");
+              favouriteList.textContent = "";
+            }
+          });
         }
       }
     }
+
+    // if (e.target.matches(".delete-favourite")) {
+    //   const id = e.target.parentElement.dataset.id;
+    //   // const post = favourites.find((el) => Number(id) === el);
+    //   // const ind = favourites.indexOf(Number(id));
+    //   // console.log(ind);
+    //   let favourites = JSON.parse(localStorage.getItem("favourites"));
+
+    //   if (!favourites) {
+    //     alert("Can not get favourites");
+    //     favouriteList.textContent = "";
+    //   } else {
+    //     console.log(favourites);
+    //     const ind = favourites.findIndex((el) => el.posts.includes(Number(id)));
+    //     console.log(ind);
+
+    //     // [{
+    //     //    id: 2,
+    //     //  posts: [2,4,6,7,8],
+    //     // },{},{}]
+
+    //     if (ind !== -1) {
+    //       favourites.splice(ind, 1);
+    //       localStorage.setItem("favourites", JSON.stringify(favourites));
+
+    //       e.target.parentElement.remove();
+    //       const posts = postsWrapper.querySelectorAll(".post");
+    //       // const unfavouritePost = posts.find((el) => el.dataset.id === id);
+    //       for (const el of posts) {
+    //         if (el.dataset.id === id) {
+    //           const btn = el.querySelector("button");
+    //           btn.disabled = false;
+    //           btn.textContent = "Добавить в избранное";
+    //         }
+    //       }
+    //     } else {
+    //       alert("Try again later");
+    //     }
+    //   }
+    // }
   });
 
   logout.addEventListener("click", () => {
